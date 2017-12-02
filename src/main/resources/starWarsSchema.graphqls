@@ -1,0 +1,14 @@
+schema {
+    query: QueryType
+}
+
+type QueryType {
+    hero(episode: Episode): String
+}
+
+
+enum Episode {
+    NEWHOPE
+    EMPIRE
+    JEDI
+}
