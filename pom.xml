@@ -47,13 +47,6 @@
 			<version>5.1.38</version>
 		</dependency>
 
-		<!-- Tinypng Image Compression -->
-		<!--<dependency>-->
-			<!--<groupId>com.tinify</groupId>-->
-			<!--<artifactId>tinify</artifactId>-->
-			<!--<version>RELEASE</version>-->
-		<!--</dependency>-->
-
 		<dependency>
 			<groupId>com.graphql-java</groupId>
 			<artifactId>graphql-java</artifactId>
