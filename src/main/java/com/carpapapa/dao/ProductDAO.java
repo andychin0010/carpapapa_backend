@@ -23,7 +23,11 @@ public interface ProductDAO {
 
     void ensureProductOptions(long id, List<ProductOption> options);
 
-    Products searchProducts(int offset, int limit, Boolean state, String make, String model, String exColor, Integer year, String status);
+    Products searchProducts(int offset, int limit, Boolean state, String make, String model, String exColor, Integer year, String status, String vin);
 
     void deleteProductById(long id);
+
+    List<String> getMakes();
+
+    List<String> getColors();
 }

@@ -84,8 +84,9 @@ public class ProductController {
                                   @RequestParam(value = "model", required = false) String model,
                                   @RequestParam(value = "exColor", required = false) String exColor,
                                   @RequestParam(value = "year", required = false) Integer year,
-                                  @RequestParam(value = "status", required = false) String status) {
-        return new ResponseEntity<>(productService.searchProducts(offset, limit, state, make, model, exColor, year, status), HttpStatus.OK);
+                                  @RequestParam(value = "status", required = false) String status,
+                                  @RequestParam(value = "vin", required = false) String vin) {
+        return new ResponseEntity<>(productService.searchProducts(offset, limit, state, make, model, exColor, year, status, vin), HttpStatus.OK);
     }
 
     @CrossOrigin
@@ -93,5 +94,17 @@ public class ProductController {
     ResponseEntity<?> deleteProductById(@PathVariable long id) {
         productService.deleteProductById(id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/makes", method = RequestMethod.GET)
+    ResponseEntity<?> getProductMakes() {
+        return new ResponseEntity<>(productService.getMakes(), HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/colors", method = RequestMethod.GET)
+    ResponseEntity<?> getProductColors() {
+        return new ResponseEntity<>(productService.getColors(), HttpStatus.OK);
     }
 }

@@ -39,6 +39,8 @@ public class MySQLProductDAO implements ProductDAO {
     private String GET_ACTIVE_PRODUCTS = "SELECT * FROM products WHERE state = 'LIVE' ";
     private String GET_PRODUCTS = "SELECT * FROM products ";
     private String GET_PRODUCT_OPTIONS_BY_ID = "SELECT * FROM product_options WHERE product_id = ?";
+    private String GET_MAKES = "SELECT make FROM products WHERE state = TRUE GROUP BY make";
+    private String GET_COLORS = "SELECT ex_color FROM products WHERE state = TRUE GROUP BY ex_color";
     private String DELETE_PRODUCT_OPTIONS_BY_ID = "DELETE FROM product_options WHERE product_id = ?";
     private String CREATE_PRODUCT_OPTIONS = "INSERT INTO product_options (`product_id`, `type`, `option`, `description`) ";
     private String DELETE_PRODUCT_BY_ID = "UPDATE products SET `is_deleted` = TRUE WHERE id = ?";
@@ -231,14 +233,14 @@ public class MySQLProductDAO implements ProductDAO {
     }
 
     @Override
-    public Products searchProducts(int offset, int limit, Boolean state, String make, String model, String exColor, Integer year, String status) {
+    public Products searchProducts(int offset, int limit, Boolean state, String make, String model, String exColor, Integer year, String status, String vin) {
         String query = GET_PRODUCTS;
         String countQuery = GET_PRODUCT_COUNT;
 
         List<Object> params = new ArrayList<>();
 
-        query += "WHERE is_deleted = FALSE AND ";
-        countQuery += "WHERE is_deleted = FALSE AND ";
+        query += "WHERE (is_deleted = FALSE AND ";
+        countQuery += "WHERE (is_deleted = FALSE AND ";
 
         if (state != null) {
             query += "state = ? AND ";
@@ -276,9 +278,24 @@ public class MySQLProductDAO implements ProductDAO {
             params.add(status);
         }
 
-        Integer productCount = getProductCount(countQuery.substring(0, countQuery.length() - 4), params);
+        countQuery = countQuery.substring(0, countQuery.length() - 4) + ") ";
+        query = query.substring(0, query.length() - 4) + ") ";
 
-        query = query.substring(0, query.length() - 4) + "ORDER BY id DESC LIMIT ? OFFSET ?";
+        if (vin != null && !vin.isEmpty()) {
+            if ((state != null || make != null || model != null || exColor != null || year != null || status != null)) {
+                query += "OR (vin LIKE ? AND is_deleted = FALSE) ";
+                countQuery += "OR (vin LIKE ? AND is_deleted = FALSE) ";
+                params.add("%" + vin.toUpperCase() + "%");
+            } else {
+                query += "AND (vin LIKE ?) ";
+                countQuery += "AND (vin LIKE ?) ";
+                params.add("%" + vin.toUpperCase() + "%");
+            }
+        }
+
+        Integer productCount = getProductCount(countQuery, params);
+
+        query = query + "ORDER BY id DESC LIMIT ? OFFSET ?";
         params.add(limit == 0 ? LIMIT : limit);
         params.add(offset == 0 ? OFFSET : offset);
         List<Product> products = jdbcTemplate.query(query, params.toArray(), new ProductRowMapper());
@@ -295,6 +312,16 @@ public class MySQLProductDAO implements ProductDAO {
                     return ps;
                 }
         );
+    }
+
+    @Override
+    public List<String> getMakes() {
+        return jdbcTemplate.queryForList(GET_MAKES, String.class);
+    }
+
+    @Override
+    public List<String> getColors() {
+        return jdbcTemplate.queryForList(GET_COLORS, String.class);
     }
 
     private Integer getProductCount(String query, List<Object> params) {

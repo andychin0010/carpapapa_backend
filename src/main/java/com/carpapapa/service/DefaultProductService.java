@@ -67,8 +67,8 @@ public class DefaultProductService implements ProductService {
     }
 
     @Override
-    public Products searchProducts(int offset, int limit, Boolean state, String make, String model, String exColor, Integer year, String status) {
-        Products products = productDAO.searchProducts(offset, limit, state, make, model, exColor, year, status);
+    public Products searchProducts(int offset, int limit, Boolean state, String make, String model, String exColor, Integer year, String status, String vin) {
+        Products products = productDAO.searchProducts(offset, limit, state, make, model, exColor, year, status, vin);
         for (Product product : products.getProducts()) {
             product.setImages(imageDao.getImagesByProductIdFilterType(product.getId(), ImageType.ICON, true));
         }
@@ -79,5 +79,15 @@ public class DefaultProductService implements ProductService {
     @Override
     public void deleteProductById(long id) {
         productDAO.deleteProductById(id);
+    }
+
+    @Override
+    public List<String> getMakes() {
+        return productDAO.getMakes();
+    }
+
+    @Override
+    public List<String> getColors() {
+        return productDAO.getColors();
     }
 }
